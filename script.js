@@ -97,8 +97,14 @@ async function fetchData(month, day) {
     allData = data.data;
     applyFilters();
   } catch (err) {
-    timeline.innerHTML = `<p style="text-align:center; color:red; padding:40px;">Failed to load data. Please check your connection.</p>`;
-  }
+      console.error("Fetch Error:", err);
+
+      timeline.innerHTML = `
+        <p style="color:red;text-align:center;padding:40px;">
+          ${err.message}
+        </p>
+      `;
+    }
 
   isFetching = false;
   loader.classList.add("hidden");
@@ -169,7 +175,11 @@ function renderTimeline(events) {
   events.forEach(function (event, index) {
     const side = index % 2 === 0 ? "left" : "right";
     const isSaved = isEventSaved(event.text);
-    const previewText = event.text.length > 100 ? event.text.slice(0, 100) + "..." : event.text;
+    const text = event.text || "";
+    const previewText =
+      text.length > 100
+        ? text.slice(0, 100) + "..."
+        : text;
 
     const item = document.createElement("div");
     item.className = `timeline-item ${side}`;
@@ -181,7 +191,7 @@ function renderTimeline(events) {
         <div class="divider"></div>
         <p class="preview-text">${previewText}</p>
         <div class="extra-content">
-          <p class="full-description">${event.text}</p>
+          <p class="full-description">${text}</p>
           <div class="actions-row">
             ${event.links?.[0] ? `<a href="${event.links[0].link}" target="_blank" class="wiki-link" onclick="event.stopPropagation()">Read more</a>` : ""}
             <button class="save-btn ${isSaved ? "saved" : ""}">${isSaved ? "Saved" : "Save"}</button>
